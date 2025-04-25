@@ -4,12 +4,7 @@ import { GoogleMap, useLoadScript } from "@react-google-maps/api";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { z } from "zod";
-import {
-  fetchUserMarkers,
-  insertMarker,
-  updateMarker,
-  UserMarker,
-} from "@/lib/markers";
+import { fetchUserMarkers, insertMarker, UserMarker } from "@/lib/markers";
 import { CustomMarker } from "./custom-marker";
 
 // Define the marker schema using Zod
