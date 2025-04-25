@@ -39,7 +39,7 @@ export function LoginForm({
       await supabase.auth.signInWithOtp({
         email: values.email,
         options: {
-          emailRedirectTo: "http://localhost:3000/auth/callback", // frontend redirect after success
+          emailRedirectTo: `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/callback`, // frontend redirect after success
         },
       });
 

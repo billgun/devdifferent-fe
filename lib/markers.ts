@@ -23,12 +23,15 @@ export async function fetchUserMarkers(): Promise<UserMarker[]> {
     throw new Error("Not authenticated");
   }
 
-  const res = await fetch("http://localhost:3001/api/markers", {
-    credentials: "include",
-    headers: {
-      Authorization: `Bearer ${session.access_token}`,
-    },
-  });
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/markers`,
+    {
+      credentials: "include",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
+    }
+  );
 
   if (!res.ok) {
     throw new Error("Failed to fetch markers");
@@ -51,14 +54,17 @@ export async function insertMarker(
     throw new Error("Not authenticated");
   }
 
-  const res = await fetch("http://localhost:3001/api/markers", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${session.access_token}`,
-    },
-    body: JSON.stringify(newMarker),
-  });
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/markers`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify(newMarker),
+    }
+  );
 
   if (!res.ok) {
     throw new Error("Failed to insert marker");
@@ -83,14 +89,17 @@ export async function updateMarker(
     throw new Error("Not authenticated");
   }
 
-  const res = await fetch(`http://localhost:3001/api/markers/${id}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${session.access_token}`,
-    },
-    body: JSON.stringify(updatedData),
-  });
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/markers/${id}`,
+    {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify(updatedData),
+    }
+  );
 
   if (!res.ok) {
     throw new Error("Failed to update marker");
@@ -112,12 +121,15 @@ export async function deleteMarker(id: number): Promise<void> {
     throw new Error("Not authenticated");
   }
 
-  const res = await fetch(`http://localhost:3001/api/markers/${id}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${session.access_token}`,
-    },
-  });
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/markers/${id}`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
+    }
+  );
 
   if (!res.ok) {
     throw new Error("Failed to delete marker");
