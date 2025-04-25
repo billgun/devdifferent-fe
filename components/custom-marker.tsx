@@ -62,14 +62,14 @@ export const CustomMarker: React.FC<CustomMarkerProps> = ({ property }) => {
       }}
       label={{
         text: formatPrice(property.price),
-        color: "#FFFFFF",
+        color: "#000000",
         fontSize: "12px",
         fontWeight: "bold",
       }}
     >
       {isHovered && (
         <InfoWindow onCloseClick={() => setIsHovered(false)}>
-          <div className="max-w-xs">
+          <div className="min-w-xs">
             <div className="relative w-full h-32 rounded-t-lg overflow-hidden">
               <Image
                 src={property.image || "/placeholder.svg"}
@@ -81,18 +81,6 @@ export const CustomMarker: React.FC<CustomMarkerProps> = ({ property }) => {
                 {formatPrice(property.price)}
               </div>
             </div>
-            {property.address && (
-              <div className="p-3 bg-white rounded-b-lg">
-                <p className="font-medium text-sm">{property.address}</p>
-                {(property.bedrooms || property.bathrooms) && (
-                  <p className="text-xs text-gray-600 mt-1">
-                    {property.bedrooms && `${property.bedrooms} bed`}
-                    {property.bedrooms && property.bathrooms && " · "}
-                    {property.bathrooms && `${property.bathrooms} bath`}
-                  </p>
-                )}
-              </div>
-            )}
           </div>
         </InfoWindow>
       )}

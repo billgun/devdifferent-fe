@@ -4,8 +4,9 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { MapPin, Menu, X } from "lucide-react";
 import { useState } from "react";
+import { Session } from "@supabase/supabase-js";
 
-export default function Navbar() {
+export default function Navbar({ session }: { session: Session | null }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
@@ -45,12 +46,15 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden md:flex items-center gap-4">
-          <Link href="/login">
-            <Button variant="outline">Login</Button>
-          </Link>
-          <Link href="/signup">
-            <Button>Sign Up</Button>
-          </Link>
+          {!session ? (
+            <>
+              <Link href="/login">
+                <Button variant="outline">Login</Button>
+              </Link>
+            </>
+          ) : (
+            <Link href={"/signout"}> Sign out</Link>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
