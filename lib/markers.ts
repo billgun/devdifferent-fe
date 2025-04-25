@@ -39,7 +39,7 @@ export async function fetchUserMarkers(): Promise<UserMarker[]> {
 }
 
 export async function insertMarker(
-  newMarker: Omit<UserMarker, "id" | "created_at">
+  newMarker: Omit<UserMarker, "id" | "created_at" | "user_id">
 ): Promise<UserMarker> {
   const supabase = createClient();
 

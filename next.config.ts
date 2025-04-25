@@ -2,7 +2,13 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ["picsum.photos"], // add other domains if needed
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "ujdrdruunzllkzoyeath.supabase.co",
+        port: "",
+      },
+    ],
   },
   /* config options here */
 };

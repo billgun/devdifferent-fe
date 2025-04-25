@@ -6,19 +6,13 @@ import { Button } from "@/components/ui/button";
 import { z } from "zod";
 import { fetchUserMarkers, insertMarker, UserMarker } from "@/lib/markers";
 import { CustomMarker } from "./custom-marker";
+import { uploadImage } from "@/lib/uploadImage";
 
 // Define the marker schema using Zod
 const markerSchema = z.object({
-  lat: z
-    .number()
-    .min(-90)
-    .max(90, { message: "Latitude must be between -90 and 90" }),
-  lng: z
-    .number()
-    .min(-180)
-    .max(180, { message: "Longitude must be between -180 and 180" }),
-  price: z.string().min(0, { message: "Price must be a positive number" }),
-  image_url: z.string().url({ message: "Invalid URL format for image" }),
+  lat: z.number().min(-90).max(90),
+  lng: z.number().min(-180).max(180),
+  price: z.string().min(1),
 });
 
 const MapComponent = () => {
@@ -52,6 +46,7 @@ const MapComponent = () => {
     image_url: "",
   });
   const [formErrors, setFormErrors] = useState<string[]>([]);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const loadMarkers = async () => {
     try {
@@ -91,38 +86,33 @@ const MapComponent = () => {
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate form with Zod
     try {
-      markerSchema.parse(newMarker); // This will throw if validation fails
-      setFormErrors([]); // Clear previous errors
+      markerSchema.parse(newMarker); // Validate fields
+      setFormErrors([]);
 
-      const { lat, lng, price, image_url } = newMarker;
+      if (!imageFile) {
+        setFormErrors(["Image file is required"]);
+        return;
+      }
 
-      // Insert the new marker into the backend (API call)
-      const newMarkerData = {
-        lat,
-        lng,
-        price,
-        image_url,
-        user_id: "57cca003-531f-47b4-9c23-40ce592fc576",
-      }; // Make sure to pass the correct user_id
+      const uploadedImageUrl = await uploadImage(imageFile);
 
-      const data = await insertMarker(newMarkerData);
-      console.log("Marker inserted:", data);
+      const data = await insertMarker({
+        ...newMarker,
+        price: Number(newMarker.price),
+        image_url: uploadedImageUrl,
+      });
 
-      // Update the state with the new marker
       setMarkers((prev) => [...prev, data]);
-
-      setShowForm(false); // Hide the form after successful submission
+      setShowForm(false);
+      setImageFile(null);
     } catch (err) {
       if (err instanceof z.ZodError) {
-        setFormErrors(err.errors.map((e) => e.message)); // Show Zod validation errors
+        setFormErrors(err.errors.map((e) => e.message));
       } else if (err instanceof Error) {
-        console.error("Error:", err);
-        setFormErrors([err.message]); // Show general errors (like network or API failure)
+        setFormErrors([err.message]);
       } else {
-        console.error("Unexpected error:", err);
-        setFormErrors(["An unexpected error occurred"]); // Handle unknown errors
+        setFormErrors(["An unknown error occurred"]);
       }
     }
   };
@@ -187,15 +177,15 @@ const MapComponent = () => {
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="image_url" className="block text-sm font-medium">
-              Image URL
+            <label htmlFor="image_file" className="block text-sm font-medium">
+              Image File
             </label>
             <input
-              type="text"
-              id="image_url"
-              name="image_url"
-              value={newMarker.image_url}
-              onChange={handleInputChange}
+              type="file"
+              id="image_file"
+              name="image_file"
+              accept="image/*"
+              onChange={(e) => setImageFile(e.target.files?.[0] || null)}
               className="mt-1 block w-full px-3 py-2 border rounded-md"
             />
           </div>
