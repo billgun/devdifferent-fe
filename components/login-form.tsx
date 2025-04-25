@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { createClient } from "@/utils/supabase/client";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -21,6 +22,7 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"div">) {
   const [serverMessage, setServerMessage] = useState<string>("");
+  const supabase = createClient();
 
   const {
     register,
@@ -34,17 +36,12 @@ export function LoginForm({
     setServerMessage("");
 
     try {
-      const res = await fetch("http://localhost:3001/auth/magic-link", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: values.email }),
+      await supabase.auth.signInWithOtp({
+        email: values.email,
+        options: {
+          emailRedirectTo: "http://localhost:3000/auth/callback", // frontend redirect after success
+        },
       });
-
-      const data: { message?: string; error?: string } = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error ?? "Something went wrong");
-      }
 
       setServerMessage("Magic link sent! Check your email ✉️");
     } catch (error: unknown) {

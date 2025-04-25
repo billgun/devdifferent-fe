@@ -1,15 +1,14 @@
 import MapComponent from "@/components/map";
 import Navbar from "@/components/navbar";
-import { fetchUserSession } from "@/lib/users";
 import Image from "next/image";
 import Link from "next/link";
 
 export default async function Home() {
-  const session = await fetchUserSession();
+  // const session = await fetchUserSession();
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar session={session} />
+      <Navbar />
 
       <main className="flex-1 flex flex-col items-center justify-center p-8 gap-8">
         <div className="w-full max-w-5xl rounded-lg overflow-hidden shadow-lg">

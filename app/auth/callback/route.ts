@@ -2,37 +2,23 @@ import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
+  // The `/auth/callback` route is required for the server-side auth flow implemented
+  // by the SSR package. It exchanges an auth code for the user's session.
+  // https://supabase.com/docs/guides/auth/server-side/nextjs
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
+  const origin = requestUrl.origin;
+  const redirectTo = requestUrl.searchParams.get("redirect_to")?.toString();
 
   if (code) {
     const supabase = await createClient();
-    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-
-    if (error) {
-      return NextResponse.json(
-        { error: "Authentication failed" },
-        { status: 401 }
-      );
-    }
-
-    // Store the access token in a cookie (with HttpOnly flag for security)
-    const token = data.session.access_token;
-
-    const headers = new Headers();
-    headers.set(
-      "Set-Cookie",
-      `access_token=${token}; HttpOnly; Path=/; Max-Age=3600;`
-    );
-
-    return NextResponse.json(
-      { message: "Logged in successfully", user: data.user },
-      { headers }
-    );
+    await supabase.auth.exchangeCodeForSession(code);
   }
 
-  return NextResponse.json(
-    { error: "Invalid or expired code" },
-    { status: 400 }
-  );
+  if (redirectTo) {
+    return NextResponse.redirect(`${origin}${redirectTo}`);
+  }
+
+  // URL to redirect to after sign up process completes
+  return NextResponse.redirect(`${origin}/`);
 }

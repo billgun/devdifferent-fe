@@ -1,10 +1,16 @@
 "use client";
 
-import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
+import { GoogleMap, useLoadScript } from "@react-google-maps/api";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { z } from "zod";
-import { fetchUserMarkers, insertMarker, UserMarker } from "@/lib/markers";
+import {
+  fetchUserMarkers,
+  insertMarker,
+  updateMarker,
+  UserMarker,
+} from "@/lib/markers";
+import { CustomMarker } from "./custom-marker";
 
 // Define the marker schema using Zod
 const markerSchema = z.object({
@@ -52,16 +58,16 @@ const MapComponent = () => {
   });
   const [formErrors, setFormErrors] = useState<string[]>([]);
 
-  useEffect(() => {
-    const loadMarkers = async () => {
-      try {
-        const data = await fetchUserMarkers();
-        setMarkers(data);
-      } catch (err) {
-        console.error("Error fetching markers:", err);
-      }
-    };
+  const loadMarkers = async () => {
+    try {
+      const data = await fetchUserMarkers();
+      setMarkers(data);
+    } catch (err) {
+      console.error("Failed to fetch markers", err);
+    }
+  };
 
+  useEffect(() => {
     loadMarkers();
   }, []);
 
@@ -148,10 +154,11 @@ const MapComponent = () => {
         options={mapOptions}
       >
         {markers.map((marker) => (
-          <Marker
+          <CustomMarker
             key={marker.id}
-            position={{ lat: marker.lat, lng: marker.lng }}
-            title={`$${marker.price}`}
+            marker={marker}
+            onUpdate={loadMarkers}
+            onDelete={loadMarkers}
           />
         ))}
       </GoogleMap>

@@ -1,5 +1,7 @@
 // lib/fetchMarkers.ts
 
+import { createClient } from "@/utils/supabase/client";
+
 export interface UserMarker {
   id: number;
   user_id: string;
@@ -11,22 +13,16 @@ export interface UserMarker {
 }
 
 export async function fetchUserMarkers(): Promise<UserMarker[]> {
-  // Get the session from Supabase
-  const { createClient } = await import("@/utils/supabase/client");
   const supabase = createClient();
 
-  // Get the session which contains the access token
   const {
     data: { session },
   } = await supabase.auth.getSession();
-
-  console.log("Session:", session);
 
   if (!session) {
     throw new Error("Not authenticated");
   }
 
-  // Include the access token in the Authorization header
   const res = await fetch("http://localhost:3001/api/markers", {
     credentials: "include",
     headers: {
@@ -42,28 +38,21 @@ export async function fetchUserMarkers(): Promise<UserMarker[]> {
   return data;
 }
 
-// Insert new marker function
 export async function insertMarker(
   newMarker: Omit<UserMarker, "id" | "created_at">
 ): Promise<UserMarker> {
-  // Get the session from Supabase
-  const { createClient } = await import("@/utils/supabase/client");
   const supabase = createClient();
 
-  // Get the session which contains the access token
   const {
     data: { session },
   } = await supabase.auth.getSession();
-
-  console.log("Session:", session);
 
   if (!session) {
     throw new Error("Not authenticated");
   }
 
-  // Send new marker data to the backend API to insert the marker
   const res = await fetch("http://localhost:3001/api/markers", {
-    method: "POST", // Use POST to insert new data
+    method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${session.access_token}`,
@@ -77,4 +66,62 @@ export async function insertMarker(
 
   const data: UserMarker = await res.json();
   return data;
+}
+
+// 🔄 Update existing marker
+export async function updateMarker(
+  id: number,
+  updatedData: Partial<Omit<UserMarker, "id" | "user_id" | "created_at">>
+): Promise<UserMarker> {
+  const supabase = createClient();
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    throw new Error("Not authenticated");
+  }
+
+  const res = await fetch(`http://localhost:3001/api/markers/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${session.access_token}`,
+    },
+    body: JSON.stringify(updatedData),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to update marker");
+  }
+
+  const data: UserMarker = await res.json();
+  return data;
+}
+
+// ❌ Delete marker
+export async function deleteMarker(id: number): Promise<void> {
+  const supabase = createClient();
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    throw new Error("Not authenticated");
+  }
+
+  const res = await fetch(`http://localhost:3001/api/markers/${id}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to delete marker");
+  }
+
+  return;
 }

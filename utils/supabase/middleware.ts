@@ -32,7 +32,7 @@ export const updateSession = async (request: NextRequest) => {
   );
 
   // Define an array of public routes
-  const publicRoutes = ["/", "/sign-in", "/home", "/about", "/contact"]; // Adjust these routes as needed
+  const publicRoutes = ["/", "/login"]; // Adjust these routes as needed
 
   // Refresh session if expired - required for Server Components
   // https://supabase.com/docs/guides/auth/server-side/nextjs
@@ -46,11 +46,6 @@ export const updateSession = async (request: NextRequest) => {
   // Redirect if the user is not authenticated and trying to access a protected route
   if (!isPublicRoute && user.error) {
     return NextResponse.redirect(new URL("/sign-in", request.url));
-  }
-
-  // Redirect authenticated users away from the home page to another route
-  if (request.nextUrl.pathname === "/" && !user.error) {
-    return NextResponse.redirect(new URL("/home", request.url));
   }
 
   return response;
