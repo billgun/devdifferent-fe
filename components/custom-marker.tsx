@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { updateMarker, deleteMarker } from "@/lib/markers";
 import { markerUpdateSchema } from "@/lib/markerSchema";
+import { cn } from "@/lib/utils";
 
 interface CustomMarkerProps {
   marker: UserMarker;
@@ -28,7 +29,7 @@ export const CustomMarker: React.FC<CustomMarkerProps> = ({
   const [loading, setLoading] = useState(false);
 
   const formatPrice = (price: number): string => {
-    return `$${price}`;
+    return `$${price}M`;
   };
 
   const handleUpdate = async () => {
@@ -70,21 +71,30 @@ export const CustomMarker: React.FC<CustomMarkerProps> = ({
       onClick={() => setIsHovered(true)}
       icon={{
         path: "M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1,1 10,-30 C 10,-22 2,-20 0,0 z",
-        fillColor: "#000000",
-        fillOpacity: 1,
-        strokeWeight: 0,
+        fillColor: "#00000080",
+        strokeOpacity: 0,
+        fillOpacity: 0,
         scale: 1,
       }}
       label={{
         text: formatPrice(marker.price),
-        color: "#000000",
+        color: isHovered ? "#000000" : "#FFFFFF",
         fontSize: "12px",
         fontWeight: "bold",
+        className: cn(
+          "bg-white px-2 py-1 rounded-lg",
+          isHovered ? "bg-white" : "bg-black"
+        ),
       }}
     >
       {isHovered && (
-        <InfoWindow onCloseClick={() => setIsHovered(false)}>
-          <div className="min-w-xs max-w-sm space-y-2">
+        <InfoWindow
+          onCloseClick={() => setIsHovered(false)}
+          options={{
+            pixelOffset: new window.google.maps.Size(0, 30),
+          }}
+        >
+          <div className="min-w-xs max-w-sm space-y-2 ">
             <div className="relative w-full h-32 rounded-t-lg overflow-hidden">
               <Image
                 src={marker.image_url || "/placeholder.svg"}
